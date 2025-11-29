@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
+@layer base {
+  img {
+    @apply inline-block;
+  }
+}
+
+.font-open-sans {
+  font-family: "Open Sans", sans-serif;
+  font-size: xx-large;
+  background: #000;
+  color: aliceblue;
+}
+
+.font-roboto {
+  font-family: "Roboto", sans-serif;
+  font-size: larger;
+  color: aliceblue;
+}
+
+.font-playwrite {
+  font-family: "Playwrite US Trad Guides", cursive;
+  color: aliceblue;
+}
