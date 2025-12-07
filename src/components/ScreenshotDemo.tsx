@@ -3,7 +3,7 @@ import { useScreenshot } from 'use-react-screenshot';
 import html2canvas from 'html2canvas';
 import AddAlertIcon from '@mui/icons-material/AddAlert';
 import { PieChart, Pie } from 'recharts';
-import { Anchor } from '@mui/icons-material';
+import { Download, Image as ImageIcon, Code, Layers, Speed } from '@mui/icons-material';
 
 // Sample data for the chart
 const data01 = [
@@ -25,177 +25,194 @@ const data02 = [
 ];
 
 const ScreenshotDemo: React.FC = () => {
-    const ref = createRef<HTMLDivElement>();
-    const ref2 = createRef<HTMLDivElement>();
-    const [image2, setImage2] = useState<string | null>(null);
+    // Refs
+    const hookRef = createRef<HTMLDivElement>();
+    const canvasRef = createRef<HTMLDivElement>();
 
-    const [image, takeScreenShot] = useScreenshot({
+    // State
+    const [hookCapture, setHookCapture] = useState<string | null>(null);
+    const [canvasCapture, setCanvasCapture] = useState<string | null>(null);
+
+    // Hook implementation
+    const [, takeScreenShot] = useScreenshot({
         type: 'image/jpeg',
         quality: 1.0
     });
 
-    const takeScreenshot = () => {
-        if (ref.current) {
-            takeScreenShot(ref.current, { scale: 2 });
+    const handleHookCapture = async () => {
+        if (hookRef.current) {
+            const img = await takeScreenShot(hookRef.current);
+            setHookCapture(img);
         }
     };
 
-    const takeScreenshotWithoutHook = async () => {
-        if (ref2.current) {
-            const canvas = await html2canvas(ref2.current, { scale: 2, useCORS: true });
-            const image = canvas.toDataURL('image/jpeg', 1.0);
-            setImage2(image);
+    // html2canvas implementation
+    const handleCanvasCapture = async () => {
+        if (canvasRef.current) {
+            try {
+                const canvas = await html2canvas(canvasRef.current, { scale: 2, useCORS: true });
+                const img = canvas.toDataURL('image/jpeg', 1.0);
+                setCanvasCapture(img);
+            } catch (error) {
+                console.error("html2canvas failed:", error);
+            }
         }
     };
 
     return (
-        <div className='p-5'>
-            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: '2.5rem', marginBottom: '2rem' }}>Screenshot Demo</h1>
-            <div className='flex gap-5'>
-                <div>
-                    <button
-                        onClick={takeScreenshot}
-                        className='bg-[#4CAF50] text-white px-5 py-2 rounded-lg cursor-pointer my-5'
-                    >
-                        📸 Take Screenshot
-                    </button>
-                    <div
-                        ref={ref}
-                        className='bg-[#2f1414ff] p-5 border border-[#ddd] rounded-lg'
-                    >
-                        <h2 className="font-open-sans"><AddAlertIcon />use react screenshot hook</h2>
+        <div className='min-h-screen bg-[#0f172a] text-white p-8 font-sans selection:bg-indigo-500 selection:text-white'>
+            <div className="max-w-5xl mx-auto space-y-20">
 
-                        <div className="mb-5">
-                            <h3 className="font-roboto">Sample Text</h3>
-                            <p className="font-playwrite">This is some sample text that will be captured in the screenshot with react screenshot hook.</p>
-                        </div>
-
-                        <div>
-                            <h3 className="font-open-sans text-center">Charts</h3>
-                            <PieChart width={730} height={250}>
-                                <Pie
-                                    data={data01}
-                                    dataKey="value"
-                                    nameKey="name"
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={50}
-                                    fill="#8884d8"
-                                />
-                                <Pie
-                                    data={data02}
-                                    dataKey="value"
-                                    nameKey="name"
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={80}
-                                    fill="#82ca9d"
-                                    label
-                                />
-                            </PieChart>
-                        </div>
-                    </div>
-                    <div className='w-full'>{image && <img src={image} alt="Screenshot" />}</div>
+                {/* Header */}
+                <div className="text-center space-y-4 pt-10">
+                    <h1 className="text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 pb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                        Legacy Capture
+                    </h1>
+                    <p className="text-xl text-slate-400 max-w-2xl mx-auto font-light">
+                        Comparing traditional methods: React Hooks vs Direct html2canvas implementation.
+                    </p>
                 </div>
-                <div>
-                    <button
-                        onClick={takeScreenshotWithoutHook}
-                        className='bg-gradient-to-r from-[#667eea] to-[#764ba2] text-white px-8 py-3 rounded-xl cursor-pointer my-5 font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2'
-                        style={{ fontFamily: 'Outfit, sans-serif' }}
-                    >
-                        📸 Capture Screenshot
-                    </button>
-                    <div
-                        ref={ref2}
-                        className='p-8 border border-[#ffffff15] rounded-2xl shadow-2xl backdrop-blur-sm'
-                        style={{
-                            fontFamily: 'Outfit, sans-serif',
-                            background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
-                        }}
-                    >
-                        {/* Header Section */}
-                        <div className="mb-8 pb-6 border-b border-[#ffffff15]">
-                            <div className="flex items-center gap-3 mb-4">
-                                <div
-                                    className="p-2 rounded-lg"
-                                    style={{ background: 'linear-gradient(90deg, #f093fb, #f5576c)' }}
-                                >
-                                    <AddAlertIcon className="text-white" />
+
+                {/* Showcase 1: React Screenshot Hook */}
+                <section className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-teal-600 to-emerald-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                    <div className="relative bg-slate-900 ring-1 ring-slate-800 rounded-2xl p-8 lg:p-12">
+                        <div className="flex flex-col lg:flex-row gap-12 items-start">
+
+                            {/* Input Side */}
+                            <div className="flex-1 w-full space-y-6">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="p-2 bg-teal-500/10 rounded-lg text-teal-500">
+                                        <Layers />
+                                    </div>
+                                    <h2 className="text-2xl font-bold">React Hook Approach</h2>
                                 </div>
-                                <h2
-                                    className="text-4xl font-bold text-white font-nunito"
-                                    style={{ background: 'linear-gradient(90deg, #ff0000, #0000ff)' }}
+                                <p className="text-slate-400 text-sm leading-relaxed">
+                                    Using <code>use-react-screenshot</code> wrapper. Good for simple React-based workflows but may have limitations with complex CSS.
+                                </p>
+
+                                {/* The Element */}
+                                <div ref={hookRef} className="p-8 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 shadow-2xl text-white relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+                                    <div className="relative z-10">
+                                        <div className="flex items-center gap-3 mb-6">
+                                            <AddAlertIcon className="w-8 h-8" />
+                                            <span className="font-mono bg-black/20 px-3 py-1 rounded-full text-xs backdrop-blur-sm">HOOKS API</span>
+                                        </div>
+                                        <h3 className="text-3xl font-bold mb-2">Simple & Clean</h3>
+                                        <p className="opacity-90 font-medium mb-4">React-native feel integration.</p>
+                                        <div className="bg-white/20 p-4 rounded-lg backdrop-blur-md text-sm">
+                                            <code>const [image, takeScreenshot] = useScreenshot();</code>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={handleHookCapture}
+                                    className="w-full bg-teal-600 hover:bg-teal-500 text-white py-3 rounded-xl font-medium transition-all shadow-lg shadow-teal-500/25 flex items-center justify-center gap-2"
                                 >
-                                    HTML to Canvas
-                                </h2>
+                                    <ImageIcon fontSize="small" /> Capture with Hook
+                                </button>
                             </div>
-                            <p className="text-[#a8b2d1] text-sm ml-14" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 300 }}>
-                                Direct html2canvas implementation without hooks
-                            </p>
-                        </div>
 
-                        {/* Action Button */}
-                        <div className="mb-6">
-                            <button
-                                className='text-white px-6 py-3 rounded-xl cursor-pointer shadow-lg flex items-center gap-2 font-semibold transition-all duration-300'
-                                onClick={() => { }}
-                                style={{
-                                    fontFamily: 'Outfit, sans-serif',
-                                    fontWeight: 600,
-                                    background: 'linear-gradient(90deg, #4CAF50, #2196F3)'
-                                }}
-                            >
-                                <Anchor fontSize="small" />
-                                Get Started
-                            </button>
-                        </div>
-
-                        {/* Image Section */}
-                        <div className="mb-8 overflow-hidden rounded-xl border border-[#ffffff15] bg-[#0a0e27] p-4">
-                            <img src="https://images.unsplash.com/photo-1503264116251-35a269479413
-" alt="Screenshot" className="w-full h-auto rounded-lg" />
-                        </div>
-
-                        {/* Content Card */}
-                        <div
-                            className="mb-8 backdrop-blur-md p-6 rounded-xl border border-[#ffffff15] transition-all duration-300"
-                            style={{ background: 'linear-gradient(135deg, #ffffff08, #ffffff03)' }}
-                        >
-                            <h3 className="text-2xl font-bold text-white mb-3" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
-                                Sample Content
-                            </h3>
-                            <p className="text-[#cbd5e1] leading-relaxed" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 300 }}>
-                                This is some sample text that will be captured in the screenshot using html2canvas without hook. Experience the power of direct canvas rendering with beautiful styling and smooth animations.
-                            </p>
-                        </div>
-
-                        {/* Charts Section */}
-                        <div
-                            className="backdrop-blur-md p-6 rounded-xl border border-[#ffffff15]"
-                            style={{ background: 'linear-gradient(135deg, #ffffff08, #ffffff03)' }}
-                        >
-                            <h3
-                                className="text-2xl font-bold text-center mb-6 bg-clip-text text-transparent"
-                                style={{
-                                    fontFamily: 'Outfit, sans-serif',
-                                    fontWeight: 600,
-                                    background: 'linear-gradient(90deg, #a8edea, #fed6e3)'
-                                }}
-                            >
-                                Data Visualization
-                            </h3>
-                            <div className="flex justify-center">
-                                <PieChart width={730} height={250}>
-                                    <Pie data={data01} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={50} fill="#8884d8" />
-                                    <Pie data={data02} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} fill="#82ca9d" label />
-                                </PieChart>
+                            {/* Output Side */}
+                            <div className="flex-1 w-full bg-black/30 rounded-xl border border-slate-800/50 p-6 min-h-[300px] flex flex-col items-center justify-center relative overflow-hidden">
+                                <div className="absolute top-4 left-4 text-xs font-mono text-slate-500">PREVIEW OUTPUT</div>
+                                {hookCapture ? (
+                                    <div className="animate-in fade-in zoom-in duration-300 w-full flex flex-col items-center">
+                                        <img src={hookCapture} alt="Captured" className="max-w-full h-auto rounded-lg shadow-2xl mb-6" />
+                                        <a href={hookCapture} download="hook-capture.jpg" className="text-teal-400 hover:text-teal-300 text-sm flex items-center gap-2 font-medium">
+                                            <Download fontSize="small" /> Download Image
+                                        </a>
+                                    </div>
+                                ) : (
+                                    <div className="text-center text-slate-600">
+                                        <ImageIcon style={{ fontSize: 48, opacity: 0.2 }} />
+                                        <p className="mt-4 text-sm">Capture to see result</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
+                </section>
 
-                    <div className='w-full mt-5'>{image2 && <img src={image2} alt="Screenshot" className="rounded-xl shadow-2xl" />}</div>
-                </div>
+                {/* Showcase 2: Direct html2canvas */}
+                <section className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                    <div className="relative bg-slate-900 ring-1 ring-slate-800 rounded-2xl p-8 lg:p-12">
+                        <div className="flex flex-col gap-8">
+
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-violet-500/10 rounded-lg text-violet-500">
+                                        <Speed />
+                                    </div>
+                                    <h2 className="text-2xl font-bold">Direct html2canvas</h2>
+                                </div>
+                                <button
+                                    onClick={handleCanvasCapture}
+                                    className="bg-violet-600 hover:bg-violet-500 text-white px-6 py-2 rounded-lg font-medium transition-all shadow-lg shadow-violet-500/25 flex items-center gap-2"
+                                >
+                                    <ImageIcon fontSize="small" /> Capture Direct
+                                </button>
+                            </div>
+
+                            <div className="grid lg:grid-cols-2 gap-12">
+                                {/* The Element */}
+                                <div
+                                    ref={canvasRef}
+                                    className="relative overflow-hidden rounded-2xl bg-[#1e1b4b] border border-indigo-900/50 p-6 shadow-2xl"
+                                >
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+
+                                    <div className="relative z-10 space-y-6">
+                                        <div className="flex items-center justify-between border-b border-indigo-800/50 pb-4">
+                                            <h3 className="text-lg font-semibold text-indigo-100">Performance Metrics</h3>
+                                            <Code className="text-indigo-400" />
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-indigo-900/40 p-4 rounded-xl border border-indigo-800/50">
+                                                <p className="text-indigo-300 text-xs uppercase tracking-wider">Speed</p>
+                                                <p className="text-2xl font-bold text-white mt-1">120ms</p>
+                                            </div>
+                                            <div className="bg-indigo-900/40 p-4 rounded-xl border border-indigo-800/50">
+                                                <p className="text-indigo-300 text-xs uppercase tracking-wider">Quality</p>
+                                                <p className="text-2xl font-bold text-white mt-1">1.0</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-indigo-950/50 rounded-xl border border-indigo-800/50 p-4 flex justify-center">
+                                            <PieChart width={250} height={250}>
+                                                <Pie data={data01} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} fill="#8b5cf6" stroke="none" />
+                                                <Pie data={data02} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={70} outerRadius={90} fill="#6366f1" stroke="none" label />
+                                            </PieChart>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Output Side */}
+                                <div className="bg-black/30 rounded-xl border border-slate-800/50 p-6 flex flex-col items-center justify-center relative min-h-[400px]">
+                                    <div className="absolute top-4 left-4 text-xs font-mono text-slate-500">PREVIEW OUTPUT</div>
+                                    {canvasCapture ? (
+                                        <div className="animate-in fade-in zoom-in duration-300 w-full flex flex-col items-center">
+                                            <img src={canvasCapture} alt="Captured" className="max-w-full h-auto rounded-lg shadow-2xl mb-6 border border-slate-800" />
+                                            <a href={canvasCapture} download="canvas-capture.jpg" className="text-violet-400 hover:text-violet-300 text-sm flex items-center gap-2 font-medium">
+                                                <Download fontSize="small" /> Download Image
+                                            </a>
+                                        </div>
+                                    ) : (
+                                        <div className="text-center text-slate-600">
+                                            <ImageIcon style={{ fontSize: 48, opacity: 0.2 }} />
+                                            <p className="mt-4 text-sm">Capture to see result</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
             </div>
         </div>
     );
